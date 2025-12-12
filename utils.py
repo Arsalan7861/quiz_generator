@@ -34,8 +34,38 @@ def get_quiz_chain(api_key, quiz_type="Classic", language="English"):
             Reference Text:
             {text}
             
-            Format the output as a numbered list of questions, followed by a numbered list of answers at the very end.
+            IMPORTANT FORMATTING INSTRUCTIONS:
+            1. Number each question clearly (1., 2., 3., etc.)
+            2. Put each question on its own line
+            3. Add a blank line after each question text before the options
+            4. Put each option (A, B, C, D, E) on a separate line
+            5. Add proper spacing between options for readability
+            6. Add a blank line between each complete question block
+            7. At the end, provide an "ANSWERS:" section with the correct answers listed clearly (1. A, 2. C, etc.)
+            
+            Example format:
+            
+            1. What is the capital of France?
+            
+            A) London
+            B) Paris
+            C) Berlin
+            D) Madrid
+            E) Rome
+            
+            2. Which element has the symbol 'O'?
+            
+            A) Gold
+            B) Silver
+            C) Oxygen
+            D) Iron
+            E) Carbon
+            
+            ANSWERS:
+            1. B
+            2. C
             """
+
         else:
             template = """
             You are an expert quiz maker. 

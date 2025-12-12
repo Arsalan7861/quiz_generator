@@ -9,7 +9,7 @@ def load_custom_css():
 def main():
     st.set_page_config(
         page_title="AI Quiz Generator - Transform PDFs into Quizzes",
-        page_icon="🚀",
+        page_icon="🧠",
         layout="wide",
         initial_sidebar_state="auto"
     )
@@ -17,8 +17,13 @@ def main():
     # Load custom CSS
     load_custom_css()
     
-    # Header
-    st.markdown("<h1>🚀 AI Quiz Generator</h1>", unsafe_allow_html=True)
+    # Header with Material Icon
+    st.markdown("""
+    <h1>
+        <span class="material-icons header-icon">quiz</span>
+        AI Quiz Generator
+    </h1>
+    """, unsafe_allow_html=True)
     st.markdown("<div class='subtitle'>Transform your study materials into personalized quizzes powered by Google Gemini AI</div>", unsafe_allow_html=True)
 
     # Sidebar for API Key and PDF Upload
@@ -65,7 +70,7 @@ def main():
             st.markdown("### 🎯 Quiz Configuration")
             st.markdown("Customize your quiz settings below")
             
-            col1, col2, col3 = st.columns(3)
+            col1, col2 = st.columns(2)
             
             with col1:
                 question_count = st.number_input(
@@ -83,13 +88,6 @@ def main():
                     help="Select the difficulty level"
                 )
             
-            with col3:
-                quiz_type = st.selectbox(
-                    "📋 Quiz Type",
-                    ["Classic", "Test"],
-                    help="Classic: Mixed questions | Test: Multiple choice"
-                )
-            
             col4, col5 = st.columns(2)
             
             with col4:
@@ -97,6 +95,13 @@ def main():
                     "🌍 Language",
                     ["English", "Turkish"],
                     help="Select the language for your quiz"
+                )
+                
+            with col5:
+                quiz_type = st.selectbox(
+                "📋 Quiz Type",
+                ["Classic", "Test"],
+                help="Classic: Mixed questions | Test: Multiple choice"
                 )
             
             submitted = st.form_submit_button("✨ Generate Quiz", use_container_width=True)
