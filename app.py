@@ -30,6 +30,7 @@ def main():
         with col2:
             difficulty = st.selectbox("Difficulty Level", ["Easy", "Intermediate", "Advanced", "Expert"])
             quiz_type = st.selectbox("Quiz Type", ["Classic", "Test"])
+            language = st.selectbox("Language", ["English", "Turkish"])
             
         submitted = st.form_submit_button("Generate Quiz")
 
@@ -50,12 +51,13 @@ def main():
                 return
                 
         with st.spinner("Generating Quiz..."):
-            chain = get_quiz_chain(api_key, quiz_type)
+            chain = get_quiz_chain(api_key, quiz_type, language)
             if chain:
                 response = chain.invoke({
                     "text": raw_text,
                     "number": question_count,
-                    "level": difficulty
+                    "level": difficulty,
+                    "language": language
                 })
                 
                 st.success("Quiz Generated!")

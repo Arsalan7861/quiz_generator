@@ -9,6 +9,7 @@ A professional grade Streamlit application that uses Google's Gemini AI to gener
 - **Customizable**:
   - Choose number of questions (1-20).
   - Select difficulty level (Easy, Intermediate, Advanced, Expert).
+  - Select language (English, Turkish).
   - Quiz types: Classic (open/mixed) or Test (Multiple Choice with 5 options).
 - **Instant Feedback**: Generates questions and answers separately for self-grading.
 - **Downloadable**: Export your generated quiz as a text file.

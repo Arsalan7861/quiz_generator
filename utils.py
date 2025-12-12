@@ -16,7 +16,7 @@ def get_pdf_text(pdf_docs):
             text += page.extract_text()
     return text
 
-def get_quiz_chain(api_key, quiz_type="Classic"):
+def get_quiz_chain(api_key, quiz_type="Classic", language="English"):
     try:
         if not api_key:
             return None
@@ -29,6 +29,7 @@ def get_quiz_chain(api_key, quiz_type="Classic"):
             Create a multiple-choice quiz with {number} questions based on the reference text provided below.
             The questions should be appropriate for {level} level students.
             Each question MUST have exactly 5 options (A, B, C, D, E).
+            The quiz and all questions/answers must be generated in the {language} language.
             
             Reference Text:
             {text}
@@ -40,6 +41,7 @@ def get_quiz_chain(api_key, quiz_type="Classic"):
             You are an expert quiz maker. 
             Create a quiz with {number} questions based on the reference text provided below.
             The questions should be appropriate for {level} level students.
+            The quiz and all questions/answers must be generated in the {language} language.
             
             Reference Text:
             {text}
@@ -48,7 +50,7 @@ def get_quiz_chain(api_key, quiz_type="Classic"):
             """
         
         prompt = PromptTemplate(
-            input_variables=["text", "number", "level"],
+            input_variables=["text", "number", "level", "language"],
             template=template
         )
         
