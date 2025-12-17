@@ -6,3 +6,4 @@ pypdf
 python-dotenv
 faiss-cpu
 langchain-google-genai
+python-docx

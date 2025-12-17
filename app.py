@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import get_pdf_text, get_quiz_chain
+from utils import get_document_text, get_quiz_chain
 
 def load_custom_css():
     """Load custom CSS from external file"""
@@ -40,15 +40,15 @@ def main():
         st.markdown("---")
         st.markdown("### 📄 Upload Documents")
         
-        pdf_docs = st.file_uploader(
-            "Drag and drop your PDF files here",
+        uploaded_docs = st.file_uploader(
+            "Drag and drop your files here",
             accept_multiple_files=True,
-            type=['pdf'],
-            help="Upload one or more PDF documents containing your study material"
+            type=['pdf', 'docx', 'txt'],
+            help="Upload PDF, Word (.docx), or Text files containing your study material"
         )
         
-        if pdf_docs:
-            st.success(f"✅ {len(pdf_docs)} file(s) uploaded")
+        if uploaded_docs:
+            st.success(f"✅ {len(uploaded_docs)} file(s) uploaded")
         
         st.markdown("---")
         st.markdown("""
@@ -107,47 +107,44 @@ def main():
             submitted = st.form_submit_button("✨ Generate Quiz", use_container_width=True)
         
         # Quiz Results Area
+        # Quiz Results Area
         if submitted:
             if not api_key:
                 st.error("🔒 Please provide a Google Gemini API Key in the sidebar.")
-                return
-                
-            if not pdf_docs:
-                st.error("📄 Please upload at least one PDF file.")
-                return
-                
-            with st.spinner("🔄 Processing your documents..."):
-                raw_text = get_pdf_text(pdf_docs)
+            elif not uploaded_docs:
+                st.error("📄 Please upload at least one document file.")
+            else:
+                with st.spinner("🔄 Processing your documents..."):
+                    raw_text = get_document_text(uploaded_docs)
                 
                 if not raw_text:
-                    st.warning("⚠️ Could not extract text from the uploaded files. Please check your PDFs.")
-                    return
-            
-            with st.spinner("🤖 AI is generating your quiz..."):
-                chain = get_quiz_chain(api_key, quiz_type, language)
-                if chain:
-                    response = chain.invoke({
-                        "text": raw_text,
-                        "number": question_count,
-                        "level": difficulty,
-                        "language": language
-                    })
-                    
-                    st.success("🎉 Quiz Generated Successfully!")
-                    
-                    # Display quiz in a styled container
-                    st.markdown("<div class='quiz-output'>", unsafe_allow_html=True)
-                    st.markdown(response)
-                    st.markdown("</div>", unsafe_allow_html=True)
-                    
-                    # Download button
-                    st.download_button(
-                        label="⬇️ Download Quiz",
-                        data=str(response),
-                        file_name=f"quiz_{difficulty.lower()}_{question_count}q.txt",
-                        mime="text/plain",
-                        use_container_width=True
-                    )
+                    st.warning("⚠️ Could not extract text from the uploaded files. Please check your documents.")
+                else:
+                    with st.spinner("🤖 AI is generating your quiz..."):
+                        chain = get_quiz_chain(api_key, quiz_type, language)
+                        if chain:
+                            response = chain.invoke({
+                                "text": raw_text,
+                                "number": question_count,
+                                "level": difficulty,
+                                "language": language
+                            })
+                            
+                            st.success("🎉 Quiz Generated Successfully!")
+                            
+                            # Display quiz in a styled container
+                            st.markdown("<div class='quiz-output'>", unsafe_allow_html=True)
+                            st.markdown(response)
+                            st.markdown("</div>", unsafe_allow_html=True)
+                            
+                            # Download button
+                            st.download_button(
+                                label="⬇️ Download Quiz",
+                                data=str(response),
+                                file_name=f"quiz_{difficulty.lower()}_{question_count}q.txt",
+                                mime="text/plain",
+                                use_container_width=True
+                            )
     
     with col_main2:
         # Feature highlights

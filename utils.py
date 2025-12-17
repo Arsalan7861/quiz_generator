@@ -1,5 +1,6 @@
 import os
 from pypdf import PdfReader
+
 from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import BaseOutputParser
@@ -8,12 +9,53 @@ class QuizParser(BaseOutputParser):
     def parse(self, text: str):
         return text
 
-def get_pdf_text(pdf_docs):
+def get_pdf_text(pdf_file):
+    """Extract text from a PDF file"""
     text = ""
-    for pdf in pdf_docs:
-        pdf_reader = PdfReader(pdf)
-        for page in pdf_reader.pages:
-            text += page.extract_text()
+    pdf_reader = PdfReader(pdf_file)
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    return text
+
+def get_docx_text(docx_file):
+    """Extract text from a Word (.docx) file"""
+    try:
+        from docx import Document
+        text = ""
+        doc = Document(docx_file)
+        for paragraph in doc.paragraphs:
+            text += paragraph.text + "\n"
+        return text
+    except ImportError:
+        return "Error: python-docx library not found. Please install it using 'pip install python-docx'"
+
+def get_txt_text(txt_file):
+    """Extract text from a TXT file"""
+    try:
+        return txt_file.read().decode('utf-8')
+    except UnicodeDecodeError:
+        # Try with different encoding if UTF-8 fails
+        txt_file.seek(0)
+        return txt_file.read().decode('latin-1')
+
+def get_document_text(uploaded_files):
+    """Extract text from multiple uploaded files (PDF, DOCX, TXT)"""
+    text = ""
+    for file in uploaded_files:
+        file_extension = file.name.lower().split('.')[-1]
+        
+        if file_extension == 'pdf':
+            text += get_pdf_text(file)
+        elif file_extension == 'docx':
+            text += get_docx_text(file)
+        elif file_extension == 'txt':
+            text += get_txt_text(file)
+        else:
+            print(f"Unsupported file type: {file.name}")
+        
+        # Add separator between documents
+        text += "\n\n--- End of " + file.name + " ---\n\n"
+    
     return text
 
 def get_quiz_chain(api_key, quiz_type="Classic", language="English"):
