@@ -5,6 +5,8 @@ from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import BaseOutputParser
 
+MODEL = "gemini-2.5-flash"
+
 class QuizParser(BaseOutputParser):
     def parse(self, text: str):
         return text
@@ -63,7 +65,7 @@ def get_quiz_chain(api_key, quiz_type="Classic", language="English"):
         if not api_key:
             return None
             
-        llm = ChatGoogleGenerativeAI(google_api_key=api_key, model="gemini-2.5-flash", temperature=0.7)
+        llm = ChatGoogleGenerativeAI(google_api_key=api_key, model=MODEL, temperature=0.7)
         
         if quiz_type == "Test":
             template = """
