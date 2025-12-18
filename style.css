@@ -144,7 +144,7 @@ h1 {
   background: rgba(102, 126, 234, 0.1);
   border: 2px dashed rgba(102, 126, 234, 0.3);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1rem;
   transition: all 0.3s ease;
 }
 
@@ -160,6 +160,14 @@ h1 {
 
 [data-testid="stFileUploader"] section {
   color: #cbd5e1 !important;
+}
+
+/* Force wrapping for all text inside the uploader to prevent cutoff */
+[data-testid="stFileUploader"] section > div,
+[data-testid="stFileUploader"] section span {
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  text-align: center !important;
 }
 
 [data-testid="stFileUploader"] small {

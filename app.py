@@ -42,7 +42,7 @@ def main():
         st.markdown("### 📄 Upload Documents")
         
         uploaded_docs = st.file_uploader(
-            "Drag and drop your files here",
+            "Upload files",
             accept_multiple_files=True,
             type=['pdf', 'docx', 'txt'],
             help="Upload PDF, Word (.docx), or Text files containing your study material"
