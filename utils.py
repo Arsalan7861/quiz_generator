@@ -115,3 +115,32 @@ def get_quiz_chain(api_key, quiz_type="Classic", language="English"):
     except Exception as e:
         print(f"Error creating chain: {e}")
         return None
+
+def get_abstract_chain(api_key, language="English"):
+    try:
+        if not api_key:
+            return None
+            
+        llm = ChatGoogleGenerativeAI(google_api_key=api_key, model=MODEL, temperature=0.5)
+        
+        template = """
+        You are an expert at summarizing documents.
+        Create a concise abstract of the following text in {language}.
+        The abstract should capture the main points and key ideas.
+        
+        Text:
+        {text}
+        
+        Abstract:
+        """
+        
+        prompt = PromptTemplate(
+            input_variables=["text", "language"],
+            template=template
+        )
+        
+        chain = prompt | llm | QuizParser()
+        return chain
+    except Exception as e:
+        print(f"Error creating abstract chain: {e}")
+        return None

@@ -1,6 +1,6 @@
 import streamlit as st
 import json
-from utils import get_document_text, get_quiz_chain
+from utils import get_document_text, get_quiz_chain, get_abstract_chain
 
 def load_custom_css():
     """Load custom CSS from external file"""
@@ -105,6 +105,8 @@ def main():
                 help="Classic: Mixed questions | Test: Multiple choice"
                 )
             
+            include_abstract = st.checkbox("📝 Include Abstract", help="Generate a summary/abstract of the content")
+            
             submitted = st.form_submit_button("✨ Generate Quiz", use_container_width=True)
         
         # Quiz Results Area
@@ -121,6 +123,14 @@ def main():
                     st.warning("⚠️ Could not extract text from the uploaded files. Please check your documents.")
                 else:
                     with st.spinner("🤖 AI is generating your quiz..."):
+                        if include_abstract:
+                            abstract_chain = get_abstract_chain(api_key, language)
+                            if abstract_chain:
+                                abstract_resp = abstract_chain.invoke({"text": raw_text, "language": language})
+                                st.session_state['abstract_text'] = abstract_resp
+                        else:
+                            st.session_state.pop('abstract_text', None)
+
                         chain = get_quiz_chain(api_key, quiz_type, language)
                         if chain:
                             response = chain.invoke({
@@ -146,6 +156,12 @@ def main():
         # Render Quiz if data exists
         if 'quiz_data' in st.session_state:
             st.markdown("---")
+            
+            if 'abstract_text' in st.session_state:
+                st.subheader("📄 Abstract")
+                st.info(st.session_state['abstract_text'])
+                st.markdown("---")
+                
             st.subheader("📝 Generated Quiz")
             
             # Handle Test Type (Interactive)
@@ -212,9 +228,9 @@ def main():
 
             # Handle Classic Type (Text)
             else:
-                st.markdown("<div class='quiz-output'>", unsafe_allow_html=True)
-                st.markdown(st.session_state['quiz_data'])
-                st.markdown("</div>", unsafe_allow_html=True)
+                # Format as a blockquote > to use custom CSS styling while preserving markdown support
+                quiz_text = st.session_state['quiz_data'].replace('\n', '\n> ')
+                st.markdown(f"> {quiz_text}")
             
             # Download button (Common for both)
             st.download_button(

@@ -323,3 +323,14 @@ hr {
   opacity: 0.9;
   margin-top: 0.5rem;
 }
+
+/* Styled Blockquote for Quiz Output */
+blockquote {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  border-left: 4px solid #667eea !important;
+  border-radius: 16px !important;
+  padding: 2rem !important;
+  margin-top: 2rem !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+  color: #1e293b !important; /* Ensure text is readable/dark */
+}
