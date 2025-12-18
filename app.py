@@ -1,6 +1,6 @@
 import streamlit as st
 import json
-from utils import get_document_text, get_quiz_chain, get_abstract_chain
+from utils import get_document_content, get_quiz_chain, get_abstract_chain, format_quiz_for_download
 
 def load_custom_css():
     """Load custom CSS from external file"""
@@ -44,8 +44,8 @@ def main():
         uploaded_docs = st.file_uploader(
             "Upload files",
             accept_multiple_files=True,
-            type=['pdf', 'docx', 'txt'],
-            help="Upload PDF, Word (.docx), or Text files containing your study material"
+            type=['pdf', 'docx', 'txt', 'pptx'],
+            help="Upload PDF, Word (.docx), PowerPoint (.pptx), or Text files containing your study material"
         )
         
         if uploaded_docs:
@@ -117,27 +117,26 @@ def main():
                 st.error("📄 Please upload at least one document file.")
             else:
                 with st.spinner("🔄 Processing your documents..."):
-                    raw_text = get_document_text(uploaded_docs)
+                    content_parts = get_document_content(uploaded_docs)
                 
-                if not raw_text:
-                    st.warning("⚠️ Could not extract text from the uploaded files. Please check your documents.")
+                if not content_parts:
+                    st.warning("⚠️ Could not extract content from the uploaded files. Please check your documents.")
                 else:
                     with st.spinner("🤖 AI is generating your quiz..."):
                         if include_abstract:
-                            abstract_chain = get_abstract_chain(api_key, language)
-                            if abstract_chain:
-                                abstract_resp = abstract_chain.invoke({"text": raw_text, "language": language})
+                            abstract_chain_func = get_abstract_chain(api_key, language)
+                            if abstract_chain_func:
+                                abstract_resp = abstract_chain_func({"content": content_parts})
                                 st.session_state['abstract_text'] = abstract_resp
                         else:
                             st.session_state.pop('abstract_text', None)
 
-                        chain = get_quiz_chain(api_key, quiz_type, language)
-                        if chain:
-                            response = chain.invoke({
-                                "text": raw_text,
+                        quiz_gen_func = get_quiz_chain(api_key, quiz_type, language)
+                        if quiz_gen_func:
+                            response = quiz_gen_func({
+                                "content": content_parts,
                                 "number": question_count,
                                 "level": difficulty,
-                                "language": language
                             })
                             
                             st.session_state['quiz_data'] = response
@@ -158,23 +157,34 @@ def main():
             st.markdown("---")
             
             if 'abstract_text' in st.session_state:
-                st.subheader("📄 Abstract")
+                if language == "Turkish":
+                    st.subheader("📄 Özet")
+                else:
+                    st.subheader("📄 Abstract")
                 st.info(st.session_state['abstract_text'])
                 st.markdown("---")
                 
-            st.subheader("📝 Generated Quiz")
+            if language == "Turkish":
+                st.subheader("📝 Oluşturulan Test")
+            else:
+                st.subheader("📝 Generated Quiz")
             
             # Handle Test Type (Interactive)
             if st.session_state.get('quiz_type_current') == "Test":
                 try:
                     # Clean up potential markdown formatting from LLM
                     quiz_data_str = st.session_state['quiz_data']
-                    if "```json" in quiz_data_str:
-                         quiz_data_str = quiz_data_str.replace("```json", "").replace("```", "")
-                    elif "```" in quiz_data_str:
-                         quiz_data_str = quiz_data_str.replace("```", "")
-                         
-                    quiz_json = json.loads(quiz_data_str)
+                    if hasattr(quiz_data_str, 'content'): # Handle weird object case if any
+                         quiz_data_str = quiz_data_str.content
+                    if isinstance(quiz_data_str, str):     
+                        if "```json" in quiz_data_str:
+                             quiz_data_str = quiz_data_str.replace("```json", "").replace("```", "")
+                        elif "```" in quiz_data_str:
+                             quiz_data_str = quiz_data_str.replace("```", "")
+                             
+                        quiz_json = json.loads(quiz_data_str)
+                    else:
+                        quiz_json = quiz_data_str # helper might have returned parsed json already? no, returns str
                     
                     with st.form("quiz_form"):
                         correct_answers = 0
@@ -199,7 +209,17 @@ def main():
                     # Show results outside the form so they persist/update
                     if st.session_state.get('quiz_submitted', False):
                         score = 0
-                        st.markdown("### 📊 Results")
+                        if language == "Turkish":
+                            st.markdown("### 📊 Sonuçlar")
+                            your_answer_label = "Cevabınız"
+                            correct_label = "Doğru Cevap"
+                            score_label = "Toplam Puan"
+                        else:
+                            st.markdown("### 📊 Results")
+                            your_answer_label = "Your answer"
+                            correct_label = "Correct"
+                            score_label = "Final Score"
+
                         for i, q in enumerate(quiz_json):
                             user_choice = st.session_state.get(f"question_{i}")
                             correct_choice = q['correct_answer']
@@ -211,16 +231,29 @@ def main():
                             else:
                                 result_icon = "❌"
                                 result_color = "red"
-                                
+                            
+                            # Convert full answer text to A/B/C/D label if possible
+                            try:
+                                user_idx = q['options'].index(user_choice)
+                                user_label = chr(65 + user_idx) # 0->A, 1->B
+                            except (ValueError, AttributeError):
+                                user_label = user_choice
+
+                            try:
+                                correct_idx = q['options'].index(correct_choice)
+                                correct_label_text = chr(65 + correct_idx)
+                            except (ValueError, AttributeError):
+                                correct_label_text = correct_choice
+                              
                             st.markdown(
                                 f"<div style='padding: 10px; border-radius: 5px; background-color: rgba(255,255,255,0.05); margin-bottom: 5px;'>"
-                                f"{result_icon} <strong>Q{i+1}:</strong> Your answer: <span style='color:{result_color}'>{user_choice}</span> | Correct: <span style='color:green'>{correct_choice}</span>"
+                                f"{result_icon} <strong>Q{i+1}:</strong> {your_answer_label}: <span style='color:{result_color}'>{user_label}</span> | {correct_label}: <span style='color:green'>{correct_label_text}</span>"
                                 f"</div>", 
                                 unsafe_allow_html=True
                             )
                         
                         percentage = (score / total_questions) * 100
-                        st.metric("Final Score", f"{score}/{total_questions}", f"{percentage:.1f}%")
+                        st.metric(score_label, f"{score}/{total_questions}", f"{percentage:.1f}%")
                         
                 except json.JSONDecodeError:
                     st.error("Error parsing quiz data. Falling back to text view.")
@@ -229,13 +262,18 @@ def main():
             # Handle Classic Type (Text)
             else:
                 # Format as a blockquote > to use custom CSS styling while preserving markdown support
-                quiz_text = st.session_state['quiz_data'].replace('\n', '\n> ')
-                st.markdown(f"> {quiz_text}")
+                quiz_text = st.session_state['quiz_data']
+                if hasattr(quiz_text, 'content'): quiz_text = quiz_text.content
+                formatted_text = quiz_text.replace('\n', '\n> ')
+                st.markdown(f"> {formatted_text}")
+            
+            # Prepare user-friendly download
+            download_str = format_quiz_for_download(st.session_state['quiz_data'], st.session_state.get('quiz_type_current'))
             
             # Download button (Common for both)
             st.download_button(
                 label="⬇️ Download Quiz",
-                data=str(st.session_state['quiz_data']),
+                data=download_str,
                 file_name=f"quiz_generated.txt",
                 mime="text/plain",
                 use_container_width=True
