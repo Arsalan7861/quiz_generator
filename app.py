@@ -1,4 +1,5 @@
 import streamlit as st
+import json
 from utils import get_document_text, get_quiz_chain
 
 def load_custom_css():
@@ -107,7 +108,6 @@ def main():
             submitted = st.form_submit_button("✨ Generate Quiz", use_container_width=True)
         
         # Quiz Results Area
-        # Quiz Results Area
         if submitted:
             if not api_key:
                 st.error("🔒 Please provide a Google Gemini API Key in the sidebar.")
@@ -130,21 +130,100 @@ def main():
                                 "language": language
                             })
                             
-                            st.success("🎉 Quiz Generated Successfully!")
+                            st.session_state['quiz_data'] = response
+                            st.session_state['quiz_type_current'] = quiz_type
                             
-                            # Display quiz in a styled container
-                            st.markdown("<div class='quiz-output'>", unsafe_allow_html=True)
-                            st.markdown(response)
-                            st.markdown("</div>", unsafe_allow_html=True)
+                            # Clear old quiz answers to prevent state conflicts
+                            keys_to_remove = [k for k in st.session_state.keys() if k.startswith('question_')]
+                            for k in keys_to_remove:
+                                del st.session_state[k]
+                                
+                            if quiz_type == "Test":
+                                st.session_state['quiz_submitted'] = False
                             
-                            # Download button
-                            st.download_button(
-                                label="⬇️ Download Quiz",
-                                data=str(response),
-                                file_name=f"quiz_{difficulty.lower()}_{question_count}q.txt",
-                                mime="text/plain",
-                                use_container_width=True
+                            st.rerun()
+
+        # Render Quiz if data exists
+        if 'quiz_data' in st.session_state:
+            st.markdown("---")
+            st.subheader("📝 Generated Quiz")
+            
+            # Handle Test Type (Interactive)
+            if st.session_state.get('quiz_type_current') == "Test":
+                try:
+                    # Clean up potential markdown formatting from LLM
+                    quiz_data_str = st.session_state['quiz_data']
+                    if "```json" in quiz_data_str:
+                         quiz_data_str = quiz_data_str.replace("```json", "").replace("```", "")
+                    elif "```" in quiz_data_str:
+                         quiz_data_str = quiz_data_str.replace("```", "")
+                         
+                    quiz_json = json.loads(quiz_data_str)
+                    
+                    with st.form("quiz_form"):
+                        correct_answers = 0
+                        total_questions = len(quiz_json)
+                        
+                        for i, q in enumerate(quiz_json):
+                            st.markdown(f"**{i+1}. {q['question']}**")
+                            st.radio(
+                                f"Select answer for question {i+1}:",
+                                q['options'],
+                                key=f"question_{i}",
+                                index=None,
+                                label_visibility="collapsed"
                             )
+                            st.markdown("<br>", unsafe_allow_html=True)
+                        
+                        submit_quiz = st.form_submit_button("Submit Answers", use_container_width=True)
+                        
+                        if submit_quiz:
+                            st.session_state['quiz_submitted'] = True
+                    
+                    # Show results outside the form so they persist/update
+                    if st.session_state.get('quiz_submitted', False):
+                        score = 0
+                        st.markdown("### 📊 Results")
+                        for i, q in enumerate(quiz_json):
+                            user_choice = st.session_state.get(f"question_{i}")
+                            correct_choice = q['correct_answer']
+                            
+                            if user_choice == correct_choice:
+                                score += 1
+                                result_icon = "✅"
+                                result_color = "green"
+                            else:
+                                result_icon = "❌"
+                                result_color = "red"
+                                
+                            st.markdown(
+                                f"<div style='padding: 10px; border-radius: 5px; background-color: rgba(255,255,255,0.05); margin-bottom: 5px;'>"
+                                f"{result_icon} <strong>Q{i+1}:</strong> Your answer: <span style='color:{result_color}'>{user_choice}</span> | Correct: <span style='color:green'>{correct_choice}</span>"
+                                f"</div>", 
+                                unsafe_allow_html=True
+                            )
+                        
+                        percentage = (score / total_questions) * 100
+                        st.metric("Final Score", f"{score}/{total_questions}", f"{percentage:.1f}%")
+                        
+                except json.JSONDecodeError:
+                    st.error("Error parsing quiz data. Falling back to text view.")
+                    st.markdown(st.session_state['quiz_data'])
+
+            # Handle Classic Type (Text)
+            else:
+                st.markdown("<div class='quiz-output'>", unsafe_allow_html=True)
+                st.markdown(st.session_state['quiz_data'])
+                st.markdown("</div>", unsafe_allow_html=True)
+            
+            # Download button (Common for both)
+            st.download_button(
+                label="⬇️ Download Quiz",
+                data=str(st.session_state['quiz_data']),
+                file_name=f"quiz_generated.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
     
     with col_main2:
         # Feature highlights

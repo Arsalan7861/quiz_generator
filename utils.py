@@ -72,42 +72,24 @@ def get_quiz_chain(api_key, quiz_type="Classic", language="English"):
             You are an expert quiz maker. 
             Create a multiple-choice quiz with {number} questions based on the reference text provided below.
             The questions should be appropriate for {level} level students.
-            Each question MUST have exactly 5 options (A, B, C, D, E).
+            
+            Return the output STRICTLY as a VALID JSON ARRAY of objects.
+            Each object must have the following structure:
+            {{
+                "question": "The question text",
+                "options": ["Option A", "Option B", "Option C", "Option D", "Option E"],
+                "correct_answer": "The correct option text (must match one of the options exactly)"
+            }}
+
             The quiz and all questions/answers must be generated in the {language} language.
             
             Reference Text:
             {text}
             
-            IMPORTANT FORMATTING INSTRUCTIONS:
-            1. Number each question clearly (1., 2., 3., etc.)
-            2. Put each question on its own line
-            3. Add a blank line after each question text before the options
-            4. Put each option (A, B, C, D, E) on a separate line
-            5. Add proper spacing between options for readability
-            6. Add a blank line between each complete question block
-            7. At the end, provide an "ANSWERS:" section with the correct answers listed clearly (1. A, 2. C, etc.)
-            
-            Example format:
-            
-            1. What is the capital of France?
-            
-            A) London
-            B) Paris
-            C) Berlin
-            D) Madrid
-            E) Rome
-            
-            2. Which element has the symbol 'O'?
-            
-            A) Gold
-            B) Silver
-            C) Oxygen
-            D) Iron
-            E) Carbon
-            
-            ANSWERS:
-            1. B
-            2. C
+            IMPORTANT:
+            1. Return ONLY the JSON array.
+            2. Do not include markdown formatting like ```json or ```.
+            3. Ensure the JSON is valid and can be parsed.
             """
 
         else:
