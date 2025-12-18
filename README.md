@@ -1,10 +1,10 @@
 # 📝 PDF Quiz Generator
 
-A professional grade Streamlit application that uses Google's Gemini AI to generate customized quizzes from your PDF study materials. Perfect for students, teachers, and lifelong learners looking to test their knowledge.
+A professional grade Streamlit application that uses Google's Gemini AI to generate customized quizzes from your study materials. Perfect for students, teachers, and lifelong learners looking to test their knowledge.
 
 ## 🚀 Features
 
-- **PDF Text Extraction**: Upload multiple PDF documents (lesson materials, textbooks, notes).
+- **Text Extraction**: Upload multiple PDF, Word, or Text documents (lesson materials, textbooks, notes).
 - **AI-Powered Generation**: Utilizes Google's Gemini Pro (`gemini-2.5-flash`) for high-quality question generation.
 - **Customizable**:
   - Choose number of questions (1-20).
@@ -31,20 +31,25 @@ A professional grade Streamlit application that uses Google's Gemini AI to gener
 Follow these steps to set up the project locally.
 
 ### 1. Clone the Repository (or download files)
+
 Ensure you are in the project directory:
+
 ```bash
 cd quiz_generator
 ```
 
 ### 2. Create a Virtual Environment
+
 It is recommended to use a virtual environment to manage dependencies.
 
 **Windows:**
+
 ```powershell
 python -m venv .venv
 ```
 
 **macOS / Linux:**
+
 ```bash
 python3 -m venv .venv
 ```
@@ -52,17 +57,21 @@ python3 -m venv .venv
 ### 3. Activate the Virtual Environment
 
 **Windows:**
+
 ```powershell
 .venv\Scripts\activate
 ```
 
 **macOS / Linux:**
+
 ```bash
 source .venv/bin/activate
 ```
 
 ### 4. Install Dependencies
+
 Install all required libraries using the requirements file:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -70,11 +79,13 @@ pip install -r requirements.txt
 ## 🎮 How to Run
 
 1. **Get your API Key**:
+
    - Visit [Google AI Studio](https://aistudio.google.com/).
    - Create an API Key.
 
 2. **Start the Application**:
    Run the following command in your terminal (with the virtual environment activated):
+
    ```bash
    streamlit run app.py
    ```
@@ -93,7 +104,6 @@ quiz_generator/
 ├── app.py              # Main application entry point & UI
 ├── utils.py            # Helper functions (PDF processing, LangChain setup)
 ├── requirements.txt    # Python dependencies
-├── .env                # Environment variables (optional)
 └── README.md           # Project documentation
 ```
 
