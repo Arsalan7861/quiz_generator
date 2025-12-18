@@ -268,6 +268,13 @@ def main():
         
         st.markdown("""
         <div class='feature-card'>
+            <h4>📝 Summarization</h4>
+            <p style='font-size: 0.9rem; color: #64748b;'>Get concise abstracts of your study materials</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class='feature-card'>
             <h4>📥 Downloadable</h4>
             <p style='font-size: 0.9rem; color: #64748b;'>Export your quizzes for offline study</p>
         </div>
