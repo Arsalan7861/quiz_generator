@@ -170,10 +170,6 @@ h1 {
   text-align: center !important;
 }
 
-[data-testid="stFileUploader"] small {
-  color: #94a3b8 !important;
-}
-
 /* Uploaded file names */
 [data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"] {
   color: #e0e7ff !important;
