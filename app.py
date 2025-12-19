@@ -37,6 +37,7 @@ def main():
             type="password",
             help="Get your API key from Google AI Studio"
         )
+        st.markdown("[Get your Google Gemini API key here](https://aistudio.google.com/app/apikey)")
         
         st.markdown("---")
         st.markdown("### 📄 Upload Documents")
