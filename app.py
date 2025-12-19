@@ -9,7 +9,7 @@ def load_custom_css():
 
 def main():
     st.set_page_config(
-        page_title="AI Quiz Generator - Transform PDFs into Quizzes",
+        page_title="Exam Prep Assistant - Transform PDFs into Quizzes",
         page_icon="🧠",
         layout="wide",
         initial_sidebar_state="auto"
@@ -22,7 +22,7 @@ def main():
     st.markdown("""
     <h1>
         <span class="material-icons header-icon">quiz</span>
-        AI Quiz Generator
+        Exam Prep Assistant
     </h1>
     """, unsafe_allow_html=True)
     st.markdown("<div class='subtitle'>Transform your study materials into personalized quizzes powered by Google Gemini AI</div>", unsafe_allow_html=True)
