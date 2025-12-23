@@ -228,9 +228,10 @@ def format_quiz_for_download(quiz_data, quiz_type):
             
             # Questions Section
             for i, q in enumerate(questions):
-                output.append(f"Question {i+1}: {q['question']}")
-                for opt in q['options']:
-                    output.append(f"  - {opt}")
+                output.append(f"{i+1}. {q['question']}")
+                for idx, opt in enumerate(q['options']):
+                    letter = chr(97 + idx)  # 97 is 'a'
+                    output.append(f"   {letter}) {opt}")
                 output.append("")
             
             output.append("")
@@ -239,7 +240,15 @@ def format_quiz_for_download(quiz_data, quiz_type):
             
             # Answers Section
             for i, q in enumerate(questions):
-                output.append(f"{i+1}. {q['correct_answer']}")
+                correct_text = q['correct_answer']
+                try:
+                    # Find index of correct answer in options to get the letter
+                    correct_idx = q['options'].index(correct_text)
+                    correct_letter = chr(97 + correct_idx)
+                    output.append(f"{i+1}. {correct_letter}")
+                except ValueError:
+                    # Fallback if content doesn't match for some reason
+                    output.append(f"{i+1}. {correct_text}")
                 
             return "\n".join(output)
             
