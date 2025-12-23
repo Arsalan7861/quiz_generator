@@ -165,10 +165,17 @@ def main():
                 st.info(st.session_state['abstract_text'])
                 st.markdown("---")
                 
+            current_type = st.session_state.get('quiz_type_current')
             if language == "Turkish":
-                st.subheader("📝 Oluşturulan Test")
+                if current_type == "Test":
+                    st.subheader("📝 Oluşturulan Test")
+                else:
+                    st.subheader("📝 Oluşturulan Sorular")
             else:
-                st.subheader("📝 Generated Quiz")
+                if current_type == "Test":
+                    st.subheader("📝 Generated Quiz")
+                else:
+                    st.subheader("📝 Generated Questions")
             
             # Handle Test Type (Interactive)
             if st.session_state.get('quiz_type_current') == "Test":
